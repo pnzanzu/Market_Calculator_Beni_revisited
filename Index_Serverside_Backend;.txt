@@ -1,0 +1,51 @@
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+
+// MongoDB Connection
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => console.log("✅ MongoDB connected"))
+  .catch(err => console.error("❌ MongoDB connection error:", err));
+
+// Schema & Model
+const Calculation = mongoose.model('Calculation', new mongoose.Schema({
+  price: Number,
+  quantity: Number,
+  cost: Number,
+  revenue: Number,
+  totalCost: Number,
+  profit: Number,
+  createdAt: { type: Date, default: Date.now }
+}));
+
+// Routes
+app.post('/api/calculate', async (req, res) => {
+  const { price, quantity, cost } = req.body;
+  const revenue = price * quantity;
+  const totalCost = cost * quantity;
+  const profit = revenue - totalCost;
+
+  const entry = new Calculation({ price, quantity, cost, revenue, totalCost, profit });
+  await entry.save();
+
+  res.json({ revenue, totalCost, profit });
+});
+
+app.get('/api/history', async (req, res) => {
+  const history = await Calculation.find().sort({ createdAt: -1 }).limit(10);
+  res.json(history);
+});
+
+// Start Server
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
