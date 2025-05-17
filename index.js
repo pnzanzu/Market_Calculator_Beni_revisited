@@ -62,6 +62,29 @@
       document.getElementById('profit').textContent = profit.toFixed(2);
     }
   </script>
+<script>
+  function calculate() {
+    try {
+      const price = parseFloat(document.getElementById('price').value);
+      const quantity = parseInt(document.getElementById('quantity').value);
+      const cost = parseFloat(document.getElementById('cost').value);
+
+      if (isNaN(price) || isNaN(quantity) || isNaN(cost)) {
+        throw new Error("All fields must be valid numbers.");
+      }
+
+      const revenue = price * quantity;
+      const totalCost = cost * quantity;
+      const profit = revenue - totalCost;
+
+      document.getElementById('revenue').textContent = revenue.toFixed(2);
+      document.getElementById('totalCost').textContent = totalCost.toFixed(2);
+      document.getElementById('profit').textContent = profit.toFixed(2);
+    } catch (error) {
+      alert("Error: " + error.message);
+    }
+  }
+</script>
 
 </body>
 </html>
